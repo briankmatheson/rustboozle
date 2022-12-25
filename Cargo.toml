@@ -5,5 +5,12 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[dependencies.nokhwa]
+# TODO: replace the "*" with the latest version of `nokhwa`
+version = "0.10.2"
+# TODO: add some features
+features = ["input-v4l"]
+
 [dependencies]
-nokhwa = "*"
+image = "0.24.5"
+mozjpeg = "0.9.4"
