@@ -19,23 +19,15 @@ fn main() {
 	CameraIndex::Index(0),
 	RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestResolution)
     ).unwrap();
-    let result = camera.open_stream();
-    eprintln!("{:?}", result);
-//    process::exit(1);
+    let open_result = camera.open_stream();
+    eprintln!("open camera stream {:?}", open_result);
 
-	
-    let frame_result = camera.frame();
-    //eprintln!("{:?}", frame_result);
-    let frame_buffer = frame_result.unwrap();
-    let resolution = frame_buffer.resolution();
-    let width = resolution.width();
-    let height = resolution.height();
+    let frame_buffer = camera.frame().unwrap();
+    let width = frame_buffer.resolution().width();
+    let height = frame_buffer.resolution().height();
+    let decoded_image = frame_buffer.decode_image::<RgbFormat>().unwrap();
 
-    let decode_result = frame_buffer.decode_image::<RgbFormat>().unwrap();
-    //eprintln!("{:?}", decode_result);
-    let decoded_image = decode_result;
-
-    let result = panic::catch_unwind(|| {
+    let unwind_result = panic::catch_unwind(|| {
 	let mut comp = Compress::new(mozjpeg::ColorSpace::JCS_RGB);
 
 	comp.set_size(width.try_into().unwrap(),
@@ -52,8 +44,9 @@ fn main() {
 	let decoded_vec = comp.data_to_vec().unwrap();
 	
 	let mut file = File::create("/tmp/file.jpeg").unwrap();
-	let _result = file.write_all(&decoded_vec);
+	let write_result = file.write_all(&decoded_vec);
+	eprintln!("write result {:?}", write_result);
     });
-    assert!(result.is_ok());
+    assert!(unwind_result.is_ok());
 }
 
